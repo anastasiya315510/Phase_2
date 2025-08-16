@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: flask-cronjob
+  namespace: default  # change if needed
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: flask-cron
+              image: 315510/flask-hello-world:latest
+              command: [ "python", "task.py" ]
+              env:
+                - name: APP_ENV
+                  valueFrom:
+                    configMapKeyRef:
+                      name: flask-config
+                      key: APP_ENV
+                - name: DATABASE_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: flask-app-secret
+                      key: DATABASE_PASSWORD
+          restartPolicy: OnFailure
